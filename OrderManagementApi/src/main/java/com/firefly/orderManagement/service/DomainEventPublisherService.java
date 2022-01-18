@@ -23,7 +23,7 @@ public class DomainEventPublisherService {
 		this.outboxRepository = outboxRepository;
 	}
 	
-	//@Scheduled(fixedRate = 1000)
+	@Scheduled(fixedRate = 1000)
 	public void scheduleFixedRateTask() throws DomainEventPublishingException {
 	    List<DomainEventEntityModel> models = outboxRepository.findTop10ByOrderByEventTimeDesc();
 	    for (DomainEventEntityModel model : models) {

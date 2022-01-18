@@ -48,7 +48,7 @@ public class OrderRepositoryIntegrationTest {
 	public void whenSaveInvalidOrderDetails_thenException() {
 		OrderDetails orderDetails = new OrderDetails();
 		OrderEntityModel model = new OrderEntityModel(orderDetails);
-		// Somehow not working, I tried saving null values from app, not inserting as expected
+		// TODO: Somehow not working, I tried saving null values from app, not inserting as expected
 		// but this one not working with docker
 		/*
 		assertThrows(DataIntegrityViolationException.class, () -> {

@@ -1,0 +1,84 @@
+version: '3.3'
+services:
+
+  order-management-api-db-service:
+    image: library/postgres:12.3-alpine
+    container_name: order-management-api-db-service-2
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432
+      
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq-shared
+    ports:
+        - 5672:5672
+        - 15672:15672
+
+  order-management-api:
+    build: 
+      context: ./OrderManagementApi/
+    container_name: order-management-api
+    restart: always
+    environment:
+      MAINDB_ENDPOINT: order-management-api-db-service
+      MAINDB_DBNAME: postgres
+      MAINDB_USERNAME: postgres
+      MAINDB_PASSWORD: password
+      RABBITMQ_HOST: rabbitmq
+    expose:
+      - "80"
+    ports:
+      - 8080:8080
+    depends_on:
+      - order-management-api-db-service
+      - rabbitmq
+ 
+  reporting-api-db-service:
+    image: postgis/postgis
+    container_name: reporting-api-db-service-2
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5433:5432
+
+  reporting-api:
+    build: 
+      context: ./ReportingApi/
+    container_name: reporting-api
+    restart: always
+    environment:
+      MAINDB_ENDPOINT: reporting-api-db-service
+      MAINDB_DBNAME: postgres
+      MAINDB_USERNAME: postgres
+      MAINDB_PASSWORD: password
+      RABBITMQ_HOST: rabbitmq
+    expose:
+      - "80"
+    ports:
+      - 8081:8081
+    depends_on:
+      - reporting-api-db-service
+      - rabbitmq
+      
+  gateway-api:
+    build: 
+      context: ./GatewayApi
+    container_name: firefly-gateway-api
+    restart: always
+    environment:
+      - ORDER_API_URI=http://order-management-api:8080
+      - REPORTING_API_URI=http://reporting-api:8081
+    ports:
+      - 8082:8082
+    depends_on:
+      - reporting-api
+      - order-management-api
+
+
+ 

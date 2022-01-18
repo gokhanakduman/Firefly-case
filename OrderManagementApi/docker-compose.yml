@@ -1,0 +1,49 @@
+version: '3.3'
+services:
+
+  order-management-api-db-service:
+    image: library/postgres:12.3-alpine
+    container_name: order-management-api-db-service
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432
+      
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+        - 5672:5672
+        - 15672:15672
+
+  order-management-api:
+    build: .
+    container_name: order-management-api
+    restart: always
+    environment:
+      MAINDB_ENDPOINT: order-management-api-db-service
+      MAINDB_DBNAME: postgres
+      MAINDB_USERNAME: postgres
+      MAINDB_PASSWORD: password
+      RABBITMQ_HOST: rabbitmq
+    ports:
+      - 8080:8080
+    depends_on:
+      - order-management-api-db-service
+      - rabbitmq
+#
+#  tests:
+#    image: maven:3
+#    stop_signal: SIGKILL
+#    stdin_open: true
+#    tty: true
+#    working_dir: $PWD
+#    volumes:
+#      - $PWD:$PWD
+#      - /var/run/docker.sock:/var/run/docker.sock
+      # Maven cache (optional)
+#      - ~/.m2:/root/.m2
+#    command: mvn test
+ 

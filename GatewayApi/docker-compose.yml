@@ -1,0 +1,12 @@
+version: '3.3'
+services:
+
+  gateway-api:
+    build: .
+    container_name: firefly-gateway-api
+    restart: always
+    environment:
+      ORDER_API_URI: http://localhost:8080
+      REPORTING_API_URI: http://localhost:8081
+    ports:
+      - 8082:8082
